@@ -1,0 +1,12 @@
+# Ignorowanie folderu z wynikami kompilacji
+/build/
+/debug/
+
+# Ignorowanie plików logów
+*.log
+
+# Ignorowanie plików tymczasowych i backupów
+*~
+*.swp
+*.bak
+*.tmp

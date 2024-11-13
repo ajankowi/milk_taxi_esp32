@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "milk_taxi_esp32",
-    "project_version":    "bf34980",
+    "project_version":    "c92d19e-dirty",
     "project_path":       "C:/Users/adamj/Desktop/Milk_taxi/esp_32/milk_taxi_esp32/milk_taxi_esp32",
     "idf_path":           "C:/Users/adamj/esp/v5.3.1/esp-idf",
     "build_dir":          "C:/Users/adamj/Desktop/Milk_taxi/esp_32/milk_taxi_esp32/milk_taxi_esp32/build",
@@ -1180,7 +1180,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "C:/Users/adamj/Desktop/Milk_taxi/esp_32/milk_taxi_esp32/milk_taxi_esp32/build/esp-idf/main/libmain.a",
-            "sources": [ "C:/Users/adamj/Desktop/Milk_taxi/esp_32/milk_taxi_esp32/milk_taxi_esp32/main/hello_world_main.c" ],
+            "sources": [ "C:/Users/adamj/Desktop/Milk_taxi/esp_32/milk_taxi_esp32/milk_taxi_esp32/main/gpio.c", "C:/Users/adamj/Desktop/Milk_taxi/esp_32/milk_taxi_esp32/milk_taxi_esp32/main/main.c" ],
             "include_dirs": []
         },
         "mbedtls": {
