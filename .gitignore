@@ -1,6 +1,7 @@
 # Ignorowanie folderu z wynikami kompilacji
 /build/
 /debug/
+/milk_taxi_esp32/build/
 
 # Ignorowanie plików logów
 *.log

@@ -8,8 +8,6 @@ static void IRAM_ATTR gpio_isr_handler(void* arg) {
     enum pinFlags flag = (enum pinFlags) arg;
 
     xQueueSendFromISR(gpio_evt_queue, &flag, NULL);
-
-    // Można tutaj dodać logikę lub przesłać dane do kolejki
 }
 
 // Init function for GPIO and interrupt
