@@ -9,10 +9,11 @@
     },
     "idf.espIdfPathWin": "C:\\Users\\adamj\\esp\\v5.3.1\\esp-idf",
     "idf.openOcdConfigs": [
-        "board/esp32c6-ftdi.cfg"
+        "board/esp32c6-bridge.cfg"
     ],
     "idf.pythonBinPathWin": "C:\\Users\\adamj\\.espressif\\python_env\\idf5.3_py3.11_env\\Scripts\\python.exe",
     "idf.toolsPathWin": "C:\\Users\\adamj\\.espressif",
     "idf.portWin": "COM7",
-    "idf.flashType": "UART"
+    "idf.flashType": "UART",
+    "C_Cpp.errorSquiggles": "disabled"
 }
