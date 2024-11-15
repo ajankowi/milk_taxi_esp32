@@ -61,38 +61,36 @@ void gpio_task(void* arg) {
 
 void app_main(void)
 {
-    uint8_t tab[5] = {'a', 'b', 'c', 'd', 'e'};
-
-    //lcd_print(tab, sizeof(tab)/sizeof(tab[0])); 
-
     gpio_init_with_interrupt();
 
     xTaskCreate(gpio_task, "gpio_task", 2048, NULL, 10, NULL);
 
-    hd44780_t lcd;
+    extern const struct hd44780 my_lcd;
 
-    lcd.pins.rs = 1;
-    lcd.pins.e = 0;
-    lcd.pins.d4 = 13;
-    lcd.pins.d5 = 12;
-    lcd.pins.d6 = 11;
-    lcd.pins.d7 = 10;
-    lcd.pins.bl = HD44780_NOT_USED;
-    lcd.font = HD44780_FONT_5X8;
-    lcd.lines = 2;
-    lcd.backlight = false;
 
-    hd44780_init(&lcd);
+    hd44780_init(&my_lcd);
+    hd44780_clear(&my_lcd);
 
-    hd44780_clear(&lcd);
+    char tabToPrint[17]; 
 
-    hd44780_puts(&lcd, "XD! lol");
 
     printf("Hello world!\n");
 
+    uint16_t ctr = 0;
 
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
+        ctr++;
+        snprintf(tabToPrint, 17,  "Temperatura:");
+
+        hd44780_gotoxy(&my_lcd, 0, 0);
+        hd44780_puts(&my_lcd, tabToPrint);
+
+        snprintf(tabToPrint, 17, "%d%cC", ctr, DEGREE_SYMBOL);
+
+        hd44780_gotoxy(&my_lcd, 0, 1);
+        hd44780_puts(&my_lcd, tabToPrint);
+
     }
 
 }

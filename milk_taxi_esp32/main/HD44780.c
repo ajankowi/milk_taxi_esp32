@@ -50,51 +50,23 @@
 #include "esp_system.h"
 #include "hd44780.h"
 
-#define MS 1000
 
-#define BV(x) (1 << (x))
-#define GPIO_BIT(x) (1ULL << (x))
 
-#define DELAY_CMD_LONG  (3 * MS) // >1.53ms according to datasheet
-#define DELAY_CMD_SHORT (60)     // >39us according to datasheet
-#define DELAY_TOGGLE    (1)      // E cycle time >= 1μs, E pulse width >= 450ns, Data set-up time >= 195ns
-#define DELAY_INIT      (5 * MS)
-
-#define CMD_CLEAR        0x01
-#define CMD_RETURN_HOME  0x02
-#define CMD_ENTRY_MODE   0x04
-#define CMD_DISPLAY_CTRL 0x08
-#define CMD_SHIFT        0x10
-#define CMD_FUNC_SET     0x20
-#define CMD_CGRAM_ADDR   0x40
-#define CMD_DDRAM_ADDR   0x80
-
-#define ARG_MOVE_RIGHT 0x04
-#define ARG_MOVE_LEFT 0x00
-#define CMD_SHIFT_LEFT  (CMD_SHIFT | CMD_DISPLAY_CTRL | ARG_MOVE_LEFT)
-#define CMD_SHIFT_RIGHT (CMD_SHIFT | CMD_DISPLAY_CTRL | ARG_MOVE_RIGHT)
-
-// CMD_ENTRY_MODE
-#define ARG_EM_INCREMENT    BV(1)
-#define ARG_EM_SHIFT        (1)
-
-// CMD_DISPLAY_CTRL
-#define ARG_DC_DISPLAY_ON   BV(2)
-#define ARG_DC_CURSOR_ON    BV(1)
-#define ARG_DC_CURSOR_BLINK (1)
-
-// CMD_FUNC_SET
-#define ARG_FS_8_BIT        BV(4)
-#define ARG_FS_2_LINES      BV(3)
-#define ARG_FS_FONT_5X10    BV(2)
-
-#define init_delay()   do { esp_rom_delay_us(pdMS_TO_TICKS(DELAY_INIT)); } while (0)
-#define short_delay()  do { esp_rom_delay_us(DELAY_CMD_SHORT); } while (0)
-#define long_delay()   do { esp_rom_delay_us(DELAY_CMD_LONG); } while (0)
-#define toggle_delay() do { esp_rom_delay_us(DELAY_TOGGLE); } while (0)
-
-#define CHECK_ARG(VAL) do { if (!(VAL)) return ESP_ERR_INVALID_ARG; } while (0)
-#define CHECK(x) do { esp_err_t __; if ((__ = x) != ESP_OK) return __; } while (0)
+const struct hd44780 my_lcd = {
+    .write_cb = NULL, // Ustawienie na NULL w przypadku bezpośredniego podłączenia do GPIO
+    .pins = {
+        .rs = GPIO_PIN_RS,       // Przykładowy GPIO/register bit dla pinu RS
+        .e = GPIO_PIN_E,         // Przykładowy GPIO/register bit dla pinu E
+        .d4 = GPIO_PIN_D4,       // Przykładowy GPIO/register bit dla pinu D4
+        .d5 = GPIO_PIN_D5,       // Przykładowy GPIO/register bit dla pinu D5
+        .d6 = GPIO_PIN_D6,       // Przykładowy GPIO/register bit dla pinu D6
+        .d7 = GPIO_PIN_D7,       // Przykładowy GPIO/register bit dla pinu D7
+        .bl = HD44780_NOT_USED // Backlight nieużywany
+    },
+    .font = HD44780_FONT_5X8, // Wybór typu czcionki
+    .lines = 2,               // Liczba linii (np. 16x2 LCD ma dwie linie)
+    .backlight = false        // Backlight początkowo wyłączony
+};
 
 static const uint8_t line_addr[] = { 0x00, 0x40, 0x14, 0x54 };
 
@@ -182,7 +154,7 @@ esp_err_t hd44780_init(hd44780_t *lcd)
     short_delay();
     // Display on
     CHECK(hd44780_control(lcd, true, false, false));
-    
+
     return ESP_OK;
 }
 
