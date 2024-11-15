@@ -12,7 +12,8 @@
 #include "esp_system.h"
 #include "esp_gdbstub.h"
 
-#include "gpio.h"
+#include "keyboard.h"
+#include "HD44780.h"
 
 #define DEBOUNCE_TIME_MS 200 // Debouncing time in ms
 
@@ -60,16 +61,36 @@ void gpio_task(void* arg) {
 
 void app_main(void)
 {
-    //esp_gdbstub_init();
-
-    printf("Hello world!\n");
-
     gpio_init_with_interrupt();
 
     xTaskCreate(gpio_task, "gpio_task", 2048, NULL, 10, NULL);
 
+    extern const struct hd44780 my_lcd;
+
+
+    hd44780_init(&my_lcd);
+    hd44780_clear(&my_lcd);
+
+    char tabToPrint[17]; 
+
+
+    printf("Hello world!\n");
+
+    uint16_t ctr = 0;
+
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
+        ctr++;
+        snprintf(tabToPrint, 17,  "Temperatura:");
+
+        hd44780_gotoxy(&my_lcd, 0, 0);
+        hd44780_puts(&my_lcd, tabToPrint);
+
+        snprintf(tabToPrint, 17, "%d%cC", ctr, DEGREE_SYMBOL);
+
+        hd44780_gotoxy(&my_lcd, 0, 1);
+        hd44780_puts(&my_lcd, tabToPrint);
+
     }
 
 }

@@ -9,11 +9,12 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 
-// Define macros for GPIO pins
-#define GPIO_PIN_UP         18
-#define GPIO_PIN_DOWN       19
-#define GPIO_PIN_SELECT     20
-#define GPIO_PIN_SET        21
+// Define macros for Keyboard pins
+#define GPIO_PIN_UP         GPIO_NUM_18
+#define GPIO_PIN_DOWN       GPIO_NUM_19
+#define GPIO_PIN_SELECT     GPIO_NUM_20
+#define GPIO_PIN_SET        GPIO_NUM_21
+
 
 #define GPIO_INPUT_PIN_SEL  ((1ULL << GPIO_PIN_UP) | (1ULL << GPIO_PIN_DOWN) | (1ULL << GPIO_PIN_SELECT) | (1ULL << GPIO_PIN_SET)) 
 
