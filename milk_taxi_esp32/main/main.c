@@ -24,8 +24,6 @@ extern enum pinFlags flag;
 uint32_t ctr = 0;
 
 
-
-
 // Debouncing task
 void gpio_task(void* arg) {
     enum pinFlags io_num;
@@ -81,9 +79,9 @@ void app_main(void)
     while (1) {
 
 
-        adc_oneshot_raw_read(&measure);
+        measure = adc_oneshot_voltage_to_temperature();
+        printf("Temperature: %d*C\r\n", measure);
 
-        printf("ADC raw: %d\r\n", measure);
 
         vTaskDelay(pdMS_TO_TICKS(1000));
         ctr++;

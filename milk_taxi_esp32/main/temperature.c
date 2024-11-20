@@ -4,6 +4,13 @@
 #include "esp_adc/adc_filter.h"
 #include "esp_adc/adc_oneshot.h"
 
+// Temperature table
+
+voltage_to_temperature_t temperatureTable[] = {
+    TEMPERATURE_TABLE
+    };  
+
+#define TABLE_SIZE       sizeof(temperatureTable)/sizeof(temperatureTable[0])
 
 // Single mode configuration
 
@@ -17,8 +24,6 @@ adc_oneshot_chan_cfg_t adc_oneshot_channel_config = {
     .bitwidth = ADC_BITWIDTH_DEFAULT,
     .atten = ADC_ATTEN_DB_12,
 };
-
-
 
 adc_oneshot_unit_handle_t adc_oneshot_unit_handle;
 
@@ -38,7 +43,45 @@ void adc_oneshot_raw_read(int* out_raw)
     ESP_ERROR_CHECK(adc_oneshot_read(adc_oneshot_unit_handle, ADC_CHAN_2_GPIO_2, out_raw));
 }
 
+int adc_oneshot_multi_raw_read()
+{
+    int data = 0;
+    int sum = 0;
 
+    for(int ctr = 0; ctr < NO_OF_SAMPLES; ctr++)
+    {
+        adc_oneshot_raw_read(&data);
+        sum += data + CALIBRATION_VALUE_DEFAULT;
+    }
+    return sum / NO_OF_SAMPLES;
+}
+
+int adc_oneshot_voltage_to_temperature()
+{
+    int temperature = 0;
+    int voltage = 0;
+
+    voltage = adc_oneshot_multi_raw_read();
+    
+    if (voltage < temperatureTable[0].voltage)
+    {
+        return ADC_VALUE_UNDER_RANGE;
+    }
+    else if(voltage > temperatureTable[TABLE_SIZE - 1].voltage)
+    {
+        return ADC_VALUE_OVER_RANGE;
+    }
+
+    for(int ctr = 0; ctr < TABLE_SIZE; ctr++)
+    {
+        if(voltage < temperatureTable[ctr].voltage)
+        {
+            temperature = temperatureTable[ctr].temperature;
+            break;
+        }
+    }
+    return temperature;
+}
 
 void adc_oneshot_deinit()
 {
@@ -51,18 +94,6 @@ void adc_oneshot_deinit()
         printf("ADC single mode deinitialization failed, error: %d\r\n", error);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Continouse mode configuration
