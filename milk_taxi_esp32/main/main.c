@@ -12,16 +12,16 @@
 #include "esp_system.h"
 #include "esp_gdbstub.h"
 
+
 #include "keyboard.h"
 #include "HD44780.h"
+#include "temperature.h"
 
 #define DEBOUNCE_TIME_MS 200 // Debouncing time in ms
 
 QueueHandle_t gpio_evt_queue = NULL;
 extern enum pinFlags flag;
 uint32_t ctr = 0;
-
-
 
 
 // Debouncing task
@@ -49,16 +49,6 @@ void gpio_task(void* arg) {
 
 
 
-
-
-
-
-
-
-
-
-
-
 void app_main(void)
 {
     gpio_init_with_interrupt();
@@ -74,11 +64,25 @@ void app_main(void)
     char tabToPrint[17]; 
 
 
+    adc_oneshot_init();
+
+    //adc_continuous_init();
+
+    uint32_t voltage = 0;
+
     printf("Hello world!\n");
 
     uint16_t ctr = 0;
 
+    int measure = 0;
+
     while (1) {
+
+
+        measure = adc_oneshot_voltage_to_temperature();
+        printf("Temperature: %d*C\r\n", measure);
+
+
         vTaskDelay(pdMS_TO_TICKS(1000));
         ctr++;
         snprintf(tabToPrint, 17,  "Temperatura:");
