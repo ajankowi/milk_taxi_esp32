@@ -16,35 +16,9 @@
 #include "keyboard.h"
 #include "HD44780.h"
 #include "temperature.h"
+#include "menu.h"
 
-#define DEBOUNCE_TIME_MS 200 // Debouncing time in ms
-
-QueueHandle_t gpio_evt_queue = NULL;
-extern enum pinFlags flag;
 uint32_t ctr = 0;
-
-
-// Debouncing task
-void gpio_task(void* arg) {
-    enum pinFlags io_num;
-    TickType_t last_time = 0;
-
-    uint32_t ctr = 0;
-
-    for(;;) {
-        if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
-            TickType_t now = xTaskGetTickCount();
-
-            // Sprawdź, czy minął czas eliminacji drgań
-            if((now - last_time) * portTICK_PERIOD_MS > DEBOUNCE_TIME_MS) {
-                // Jeśli czas minął, przetwarzamy zdarzenie
-                printf("Pin pushed %d, %ld \r\n", io_num, ctr++);
-                last_time = now;
-            }
-        }
-    }
-}
-
 
 
 
@@ -80,7 +54,7 @@ void app_main(void)
 
 
         measure = adc_oneshot_voltage_to_temperature();
-        printf("Temperature: %d*C\r\n", measure);
+        //printf("Temperature: %d*C\r\n", measure);
 
 
         vTaskDelay(pdMS_TO_TICKS(1000));
@@ -90,7 +64,7 @@ void app_main(void)
         hd44780_gotoxy(&my_lcd, 0, 0);
         hd44780_puts(&my_lcd, tabToPrint);
 
-        snprintf(tabToPrint, 17, "%d%cC", ctr, DEGREE_SYMBOL);
+        snprintf(tabToPrint, 17, "%d%cC", measure, DEGREE_SYMBOL);
 
         hd44780_gotoxy(&my_lcd, 0, 1);
         hd44780_puts(&my_lcd, tabToPrint);
