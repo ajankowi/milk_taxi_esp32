@@ -24,8 +24,8 @@ enum pinFlags{
     pin_down = GPIO_PIN_DOWN,
     pin_select = GPIO_PIN_SELECT,
     pin_set = GPIO_PIN_SET
-};
 
+};
 // Tag for logging
 static const char *TAG = "GPIO_ISR";
 

@@ -25,8 +25,6 @@ uint32_t ctr = 0;
 
 void app_main(void)
 {
-    char tabToPrint[17]; 
-
     extern const struct hd44780 my_lcd;
 
     adc_oneshot_init();
@@ -46,24 +44,11 @@ void app_main(void)
 
     int measure = 0;
 
-    while (1) {
-
-
+    while (1) 
+    {
         measure = adc_oneshot_voltage_to_temperature();
-        //printf("Temperature: %d*C\r\n", measure);
-
 
         vTaskDelay(pdMS_TO_TICKS(1000));
-        ctr++;
-        snprintf(tabToPrint, 17,  "Temperatura:");
-
-        hd44780_gotoxy(&my_lcd, 0, 0);
-        hd44780_puts(&my_lcd, tabToPrint);
-
-        snprintf(tabToPrint, 17, "%d%cC", measure, DEGREE_SYMBOL);
-
-        hd44780_gotoxy(&my_lcd, 0, 1);
-        hd44780_puts(&my_lcd, tabToPrint);
 
     }
 
