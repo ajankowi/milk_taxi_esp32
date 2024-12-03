@@ -25,22 +25,18 @@ uint32_t ctr = 0;
 
 void app_main(void)
 {
-    gpio_init_with_interrupt();
-
-    xTaskCreate(gpio_task, "gpio_task", 2048, NULL, 10, NULL);
+    char tabToPrint[17]; 
 
     extern const struct hd44780 my_lcd;
 
+    adc_oneshot_init();
 
     hd44780_init(&my_lcd);
     hd44780_clear(&my_lcd);
 
-    char tabToPrint[17]; 
 
-
-    adc_oneshot_init();
-
-    //adc_continuous_init();
+    gpio_init_with_interrupt();
+    xTaskCreate(gpio_task, "gpio_task", 2048, NULL, 10, NULL);
 
     uint32_t voltage = 0;
 
