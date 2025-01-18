@@ -52,12 +52,12 @@ extern "C" {
 
 #define HD44780_NOT_USED 0xff
 
-#define GPIO_PIN_RS         GPIO_NUM_1
-#define GPIO_PIN_E          GPIO_NUM_0
-#define GPIO_PIN_D4         GPIO_NUM_13
-#define GPIO_PIN_D5         GPIO_NUM_12
-#define GPIO_PIN_D6         GPIO_NUM_11
-#define GPIO_PIN_D7         GPIO_NUM_10
+#define GPIO_PIN_RS         GPIO_NUM_0
+#define GPIO_PIN_E          GPIO_NUM_1
+#define GPIO_PIN_D4         GPIO_NUM_10
+#define GPIO_PIN_D5         GPIO_NUM_11
+#define GPIO_PIN_D6         GPIO_NUM_12
+#define GPIO_PIN_D7         GPIO_NUM_13
 
 #define DEGREE_SYMBOL       0xdf  // 223 in decimal
 

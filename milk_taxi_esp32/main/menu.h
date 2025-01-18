@@ -13,5 +13,6 @@ enum menu_state {
 
 void gpio_task(void* arg);
 
+void display_menu(enum menu_state menu_position);
 
 #endif /* __MENU_H__ */
