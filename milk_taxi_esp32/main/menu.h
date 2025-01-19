@@ -3,6 +3,7 @@
 
 
 #define DEBOUNCE_TIME_MS 400 // Debouncing time in ms
+#define DISPLAY_LOOP_TIME_MS 100 // Debouncing time in ms
 
 enum menu_state {
     menu_actualTime,
@@ -12,7 +13,7 @@ enum menu_state {
 };
 
 void gpio_task(void* arg);
-
+void displayMenu_task(void* arg);
 void display_menu(enum menu_state menu_position);
 
 #endif /* __MENU_H__ */

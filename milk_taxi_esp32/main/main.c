@@ -20,9 +20,7 @@
 #include "ds3231.h"
 
 uint32_t ctr = 0;
-
-
-
+i2c_dev_t dev_rtc;
 
 void app_main(void)
 {
@@ -36,8 +34,7 @@ void app_main(void)
     //display_menu(menu_actualTime);
 
 	// Initialize RTC
-	i2c_dev_t dev;
-	if (ds3231_init_desc(&dev, I2C_NUM_0, CONFIG_SDA_GPIO, CONFIG_SCL_GPIO) != ESP_OK) {
+	if (ds3231_init_desc(&dev_rtc, I2C_NUM_0, CONFIG_SDA_GPIO, CONFIG_SCL_GPIO) != ESP_OK) {
 		ESP_LOGE(pcTaskGetName(0), "Could not init device descriptor.");
 		while (1) { vTaskDelay(1); }
 	}
@@ -46,14 +43,13 @@ void app_main(void)
 		.tm_year = 2020,
 		.tm_mon  = 1,  // 0-based
 		.tm_mday = 1,
-		.tm_hour = 1,
-		.tm_min  = 1,
-		.tm_sec  = 1
+		.tm_hour = 18,
+		.tm_min  = 43,
+		.tm_sec  = 20
 	};
 
-	if (ds3231_set_time(&dev, &time) != ESP_OK) {
+	if (ds3231_set_time(&dev_rtc, &time) != ESP_OK) {
 		ESP_LOGE(pcTaskGetName(0), "Could not set time.");
-		while (1) { vTaskDelay(1); }
 	}
 	ESP_LOGI(pcTaskGetName(0), "Set initial date time done");
 
@@ -62,7 +58,8 @@ void app_main(void)
 	struct tm rtcinfo;
 
     gpio_init_with_interrupt();
-    xTaskCreate(gpio_task, "gpio_task", 2048, NULL, 10, NULL);
+    xTaskCreate(gpio_task, "gpio_task", 4096, NULL, 8, NULL);
+    xTaskCreate(displayMenu_task, "displayMenu_task", 4096, NULL, 10, NULL);
 
     uint32_t voltage = 0;
 
@@ -70,27 +67,14 @@ void app_main(void)
 
     uint16_t ctr = 0;
 
-    int measure = 0;
+    //int measure = 0;
 
-    while (1) 
-    {
-        measure = adc_oneshot_voltage_to_temperature();
+    //while (1) 
+    //{
+        //measure = adc_oneshot_voltage_to_temperature();
 
-        vTaskDelay(pdMS_TO_TICKS(1000));
-
-        if (ds3231_get_temp_float(&dev, &temp) != ESP_OK) {
-		    ESP_LOGE(pcTaskGetName(0), "Could not get temperature.");
-		    while (1) { vTaskDelay(1); }
-	    }
-
-	    if (ds3231_get_time(&dev, &rtcinfo) != ESP_OK) {
-		    ESP_LOGE(pcTaskGetName(0), "Could not get time.");
-		    while (1) { vTaskDelay(1); }
-	    }
-
-	    ESP_LOGI(pcTaskGetName(0), "%04d-%02d-%02d %02d:%02d:%02d, %.2f deg Cel", 
-	    rtcinfo.tm_year, rtcinfo.tm_mon + 1,
-	    rtcinfo.tm_mday, rtcinfo.tm_hour, rtcinfo.tm_min, rtcinfo.tm_sec, temp);
-    }
+    //    vTaskDelay(pdMS_TO_TICKS(1000));
+ 
+    //}
 
 }

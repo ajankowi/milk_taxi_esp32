@@ -1,15 +1,22 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+#include "esp_log.h"
 
 #include "menu.h"
 #include "keyboard.h"
 #include "HD44780.h"
+#include "ds3231.h"
+#include "temperature.h"
 
 QueueHandle_t gpio_evt_queue = NULL;
 enum pinFlags io_num;
 
 char tabToPrint[17]; 
+
+struct tm rtcinfo;
+enum menu_state menu_position = 0;
+int tempMeasure = 0;
 
 extern const struct hd44780 my_lcd;
 
@@ -41,12 +48,22 @@ void gpio_task(void* arg) {
     }
 }
 
+
+// Display menu task
+void displayMenu_task(void* arg) {
+
+    for(;;) {
+        vTaskDelay(pdMS_TO_TICKS(DISPLAY_LOOP_TIME_MS));
+        display_menu(menu_position);
+    }
+}
+
+
 void app_menu(enum pinFlags io_num)
 {
     // Dodaj podświetlanie wyświetlacza (zmiana flagi)
     // Dodaj timer, który automatycznie wyłączy podświetlenie wyświetlacza po np. 60sek
 
-    static enum menu_state menu_position = 0;
     int8_t select_newValue = 0;
 
     switch(io_num)
@@ -94,10 +111,7 @@ void app_menu(enum pinFlags io_num)
             break;
         } 
     }
-
     printf("Actual position: %d \r\n", menu_position);
-
-    display_menu(menu_position);
 }
 
 
@@ -105,17 +119,6 @@ void app_menu(enum pinFlags io_num)
 
 void display_menu(enum menu_state menu_position)
 {
-    static int8_t actual_posision =-1;
-
-    if(actual_posision == menu_position)
-    {
-        return;
-    }
-    else
-    {
-        actual_posision = menu_position;
-    }
-
     switch(menu_position)
     {
         case menu_actualTime: 
@@ -146,28 +149,46 @@ void display_menu(enum menu_state menu_position)
 
 void display_actualTime()
 {
-    snprintf(tabToPrint, 17,  "actualTime:    ");
+	if (ds3231_get_time(&dev_rtc, &rtcinfo) != ESP_OK) {
+	    ESP_LOGE(pcTaskGetName(0), "Could not get time, RTC error!");
+	}
+
+
+    snprintf(tabToPrint, 17, "1.Aktualny czas:");
 
     hd44780_gotoxy(&my_lcd, 0, 0);
+    hd44780_puts(&my_lcd, tabToPrint);
+
+    snprintf(tabToPrint, 17, "  %02d:%02d:%02d", rtcinfo.tm_hour, rtcinfo.tm_min, rtcinfo.tm_sec);
+
+    hd44780_gotoxy(&my_lcd, 0, 1);
     hd44780_puts(&my_lcd, tabToPrint);
 }
 
 void  display_alarmTime()
 {
-    snprintf(tabToPrint, 17,  "alarmTime:    ");
+    snprintf(tabToPrint, 17,  "2.Godzina alarmu");
 
     hd44780_gotoxy(&my_lcd, 0, 0);
     hd44780_puts(&my_lcd, tabToPrint);
+
+    snprintf(tabToPrint, 17, "  07:00       ");
+
+    hd44780_gotoxy(&my_lcd, 0, 1);
+    hd44780_puts(&my_lcd, tabToPrint);
+
 }
 
 void display_temperature()
 {
-    snprintf(tabToPrint, 17,  "Temperatura:  ");
+    tempMeasure = adc_oneshot_voltage_to_temperature();
+
+    snprintf(tabToPrint, 17,  "3.Temperatura:  ");
 
     hd44780_gotoxy(&my_lcd, 0, 0);
     hd44780_puts(&my_lcd, tabToPrint);
 
-    snprintf(tabToPrint, 17, "%cC", DEGREE_SYMBOL);
+    snprintf(tabToPrint, 17, "  %d%cC      ", tempMeasure, DEGREE_SYMBOL);
 
     hd44780_gotoxy(&my_lcd, 0, 1);
     hd44780_puts(&my_lcd, tabToPrint);
