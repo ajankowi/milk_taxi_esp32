@@ -28,7 +28,7 @@ void display_actualTime();
 void display_alarmTime();
 void display_temperature();
 
-// Debouncing task
+// GPIO task with debouncing functionality
 void gpio_task(void* arg) {
     TickType_t last_time = 0;
 
@@ -36,9 +36,9 @@ void gpio_task(void* arg) {
         if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
             TickType_t now = xTaskGetTickCount();
 
-            // Sprawdź, czy minął czas eliminacji drgań
+            // Check if debounce time has passed to eliminate button bouncing
             if((now - last_time) * portTICK_PERIOD_MS > DEBOUNCE_TIME_MS) {
-                // Jeśli czas minął, przetwarzamy zdarzenie
+               // If time has passed, process the event
                 last_time = now;
 
                 printf("\t\tPin pushed %d \r\n", io_num);
@@ -50,8 +50,7 @@ void gpio_task(void* arg) {
     }
 }
 
-
-// Display menu task
+// Display menu task - continuously updates the LCD display
 void displayMenu_task(void* arg) {
 
     for(;;) {
@@ -60,11 +59,12 @@ void displayMenu_task(void* arg) {
     }
 }
 
-// Menu logic - backEnd
+// Menu logic backend - handles button input and navigation
 void app_menu(enum pinFlags io_num)
 {
-    // Dodaj podświetlanie wyświetlacza (zmiana flagi)
-    // Dodaj timer, który automatycznie wyłączy podświetlenie wyświetlacza po np. 60sek
+    // ToDo
+    // Add display backlight control (flag change)
+    // Add timer to automatically turn off display backlight after e.g. 60sec
 
     switch(io_num)
     {
@@ -79,10 +79,6 @@ void app_menu(enum pinFlags io_num)
 	                }
                     changeParameter = false;
                 }
-
-
-
-
 
             }else
             {
@@ -137,7 +133,7 @@ void app_menu(enum pinFlags io_num)
 
 
 
-// Only display - frontEnd
+// Display frontend - renders appropriate menu screen based on current state
 void display_menu(enum menu_state menu_position)
 {
     switch(menu_position)
@@ -174,7 +170,7 @@ void display_menu(enum menu_state menu_position)
 }
 
 
-
+// Display current time from RTC on LCD screen
 void display_actualTime()
 {
 	if (ds3231_get_time(&dev_rtc, &rtcinfo) != ESP_OK) {
@@ -193,6 +189,7 @@ void display_actualTime()
     hd44780_puts(&my_lcd, tabToPrint);
 }
 
+// Display alarm time setting on LCD screen
 void  display_alarmTime()
 {
     snprintf(tabToPrint, 17,  "2.Godzina alarmu");
@@ -207,6 +204,7 @@ void  display_alarmTime()
 
 }
 
+// Display current temperature reading on LCD screen
 void display_temperature()
 {
     tempMeasure = adc_oneshot_voltage_to_temperature();
@@ -222,7 +220,8 @@ void display_temperature()
     hd44780_puts(&my_lcd, tabToPrint);
 }
 
-change_actualTime()
+// Display time change interface for setting new time
+void change_actualTime()
 {
     snprintf(tabToPrint, 17, "1.Godzina:");
 

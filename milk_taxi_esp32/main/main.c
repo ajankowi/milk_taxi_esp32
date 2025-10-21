@@ -61,20 +61,4 @@ void app_main(void)
     xTaskCreate(gpio_task, "gpio_task", 4096, NULL, 8, NULL);
     xTaskCreate(displayMenu_task, "displayMenu_task", 4096, NULL, 10, NULL);
 
-    uint32_t voltage = 0;
-
-    printf("Hello world!\n");
-
-    uint16_t ctr = 0;
-
-    //int measure = 0;
-
-    //while (1) 
-    //{
-        //measure = adc_oneshot_voltage_to_temperature();
-
-    //    vTaskDelay(pdMS_TO_TICKS(1000));
- 
-    //}
-
 }
