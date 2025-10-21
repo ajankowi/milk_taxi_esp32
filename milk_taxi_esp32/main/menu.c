@@ -17,6 +17,8 @@ char tabToPrint[17];
 struct tm rtcinfo;
 enum menu_state menu_position = 0;
 int tempMeasure = 0;
+bool select_newValue = false;
+bool changeParameter = false;
 
 extern const struct hd44780 my_lcd;
 
@@ -58,19 +60,33 @@ void displayMenu_task(void* arg) {
     }
 }
 
-
+// Menu logic - backEnd
 void app_menu(enum pinFlags io_num)
 {
     // Dodaj podświetlanie wyświetlacza (zmiana flagi)
     // Dodaj timer, który automatycznie wyłączy podświetlenie wyświetlacza po np. 60sek
 
-    int8_t select_newValue = 0;
-
     switch(io_num)
     {
         case pin_up: 
         {
-            if(menu_position == 0)
+            if(select_newValue == 1)
+            {
+                if(changeParameter)
+                {
+                    if (ds3231_get_time(&dev_rtc, &rtcinfo) != ESP_OK) {
+	                    ESP_LOGE(pcTaskGetName(0), "Could not get time, RTC error!");
+	                }
+                    changeParameter = false;
+                }
+
+
+
+
+
+            }else
+            {
+                if(menu_position == 0)
             {
                 menu_position = menu_temperature;
             }
@@ -78,8 +94,8 @@ void app_menu(enum pinFlags io_num)
             {
                 --menu_position;
             }
+            }
 
-            printf("Pin pushed %d \r\n", io_num);
             break;
         }
         case pin_down: 
@@ -91,19 +107,23 @@ void app_menu(enum pinFlags io_num)
                 menu_position = menu_actualTime;
             }
             
-            printf("Pin pushed %d \r\n", io_num);
             break;
         }   
 
         case pin_select: 
         {
-            printf("Pin pushed %d \r\n", io_num);
-            select_newValue = 1;
+            if(!select_newValue)
+            {
+                select_newValue = true;
+                changeParameter = true;
+            }
+            
             break;
         }
         case pin_set: 
         {
-            printf("Pin pushed %d \r\n", io_num);
+            select_newValue = 0;
+
             break;
         }
         default:     
@@ -111,19 +131,27 @@ void app_menu(enum pinFlags io_num)
             break;
         } 
     }
+    printf("Pin pushed %d \r\n", io_num);
     printf("Actual position: %d \r\n", menu_position);
 }
 
 
 
-
+// Only display - frontEnd
 void display_menu(enum menu_state menu_position)
 {
     switch(menu_position)
     {
         case menu_actualTime: 
         {
-            display_actualTime();
+            if(select_newValue)
+            {
+                change_actualTime();
+            }
+            else           
+            {
+                display_actualTime();
+            }
             break;
         }
         case menu_alarmTime: 
@@ -159,7 +187,7 @@ void display_actualTime()
     hd44780_gotoxy(&my_lcd, 0, 0);
     hd44780_puts(&my_lcd, tabToPrint);
 
-    snprintf(tabToPrint, 17, "  %02d:%02d:%02d", rtcinfo.tm_hour, rtcinfo.tm_min, rtcinfo.tm_sec);
+    snprintf(tabToPrint, 17, "  %02d:%02d", rtcinfo.tm_hour, rtcinfo.tm_min);
 
     hd44780_gotoxy(&my_lcd, 0, 1);
     hd44780_puts(&my_lcd, tabToPrint);
@@ -189,6 +217,19 @@ void display_temperature()
     hd44780_puts(&my_lcd, tabToPrint);
 
     snprintf(tabToPrint, 17, "  %d%cC      ", tempMeasure, DEGREE_SYMBOL);
+
+    hd44780_gotoxy(&my_lcd, 0, 1);
+    hd44780_puts(&my_lcd, tabToPrint);
+}
+
+change_actualTime()
+{
+    snprintf(tabToPrint, 17, "1.Godzina:");
+
+    hd44780_gotoxy(&my_lcd, 0, 0);
+    hd44780_puts(&my_lcd, tabToPrint);
+
+    snprintf(tabToPrint, 17, "  %02d:%02d", rtcinfo.tm_hour, rtcinfo.tm_min);
 
     hd44780_gotoxy(&my_lcd, 0, 1);
     hd44780_puts(&my_lcd, tabToPrint);
